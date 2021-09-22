@@ -1,8 +1,10 @@
 package Codigo;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
@@ -80,7 +82,11 @@ public class SliderMod extends JPanel implements MouseInputListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         int PosX = Math.round((float)(Valor - ValorMin)/(ValorMax - ValorMin)*getWidth());
-        g.drawLine(PosX, 0, PosX, getHeight());
+
+        g.fillRect(0, 0, PosX, getHeight());
+
+        g.setColor(Color.gray);
+        g.drawString(""+Valor, 10, 15);
     }
 
     public void mouseClicked(MouseEvent e) {}

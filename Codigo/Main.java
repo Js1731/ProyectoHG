@@ -40,6 +40,9 @@ class Listener implements MouseInputListener {
 
 public class Main {
 
+    public static Thread ProcDibujar;
+    public static int Forma = 0;
+    public static boolean Dibujando = false;
     public static JPanel PnImagen;
     public static Graphics Lapiz;
     public static BufferedImage Imagen = new BufferedImage(150,150,BufferedImage.TYPE_INT_ARGB);
@@ -53,6 +56,11 @@ public class Main {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void _reiniciar_imagen(){
+        Lapiz.setColor(Color.gray);
+        Lapiz.fillRect(0, 0, Imagen.getWidth(), Imagen.getHeight());
     }
 
     public static void _dibujar_linea(int x1, int y1, int x2, int y2){
@@ -73,13 +81,27 @@ public class Main {
     }
 
     public static void _dib_rect_statico(int x, int y, int ancho, int alto){
-        Thread Dibujar = new Thread(new Runnable(){
+
+        if(Dibujando)
+            return;
+
+        Thread Dibujar = ProcDibujar = new Thread(new Runnable(){
             @Override
             public void run() {
+
+                _reiniciar_imagen();
+                Dibujando = true;
+
+                Lapiz.setColor(Utils.ColBorde);
+                
                 _dibujar_linea(x, y, x + ancho, y);
                 _dibujar_linea(x + ancho, y, x + ancho, y + alto);
                 _dibujar_linea(x + ancho, y + alto, x, y + alto);
-                _dibujar_linea(x, y, x, y + alto);
+                _dibujar_linea(x, y + alto, x, y);
+                
+                _rellenar(75, 75, Imagen.getRGB(75, 75), Utils.ColRelleno.getRGB());
+
+                Dibujando = false;
             }
         });
 
@@ -87,12 +109,24 @@ public class Main {
     }
 
     public static void _dib_tria_statico(int x1, int y1, int x2, int y2, int x3, int y3){
-        Thread Dibujar = new Thread(new Runnable(){
+
+        if(Dibujando)
+            return;
+
+        Thread Dibujar = ProcDibujar = new Thread(new Runnable(){
             @Override
             public void run() {
+                _reiniciar_imagen();
+                Dibujando = true;
+
+                Lapiz.setColor(Utils.ColBorde);
                 _dibujar_linea(x1, y1, x2, y2);
                 _dibujar_linea(x2, y2, x3, y3);
                 _dibujar_linea(x3, y3, x1, y1);
+
+                _rellenar(75, 75, Imagen.getRGB(75, 75), Utils.ColRelleno.getRGB());
+
+                Dibujando = false;
             }
         });
 
@@ -101,9 +135,17 @@ public class Main {
 
     public static void _dib_poligono_statico(int x, int y, int radio, int lados){
 
-        Thread Dibujar = new Thread(new Runnable(){
+        if(Dibujando)
+            return;
+
+        Thread Dibujar = ProcDibujar = new Thread(new Runnable(){
             @Override
             public void run() {
+
+                _reiniciar_imagen();
+
+                Dibujando = true;
+
                 double paso = 2*Math.PI/lados;
 
                 //PUNTO INICIAL
@@ -113,18 +155,17 @@ public class Main {
                 for (double i = paso; i <= 2*Math.PI; i+=paso) {
                     double px = x + radio * Math.cos(i);
                     double py = y + radio * Math.sin(i);
-                
-                    System.out.println(px_ini + ", " + py_ini + ", " + px + ", " + py);
-                    System.out.println(Math.round((float)px_ini) + ", " + Math.round((float)py_ini) + ", " + Math.round((float)px) + ", " + Math.round((float)py));
-                    System.out.println("");
 
-                    Lapiz.setColor(Color.black);
+                    Lapiz.setColor(Utils.ColBorde);
                     _dibujar_linea(Math.round((float)px_ini), Math.round((float)py_ini), Math.round((float)px), Math.round((float)py));
-
+                    
                     //ACTUALIZAR PUNTO INICIAL
                     px_ini = px;
                     py_ini = py;
                 }
+                
+                _rellenar(75, 75, Imagen.getRGB(75, 75), Utils.ColRelleno.getRGB());
+                Dibujando = false;
             }
         });
 
@@ -133,7 +174,7 @@ public class Main {
 
     //RELLENAR UN ESPACIO CON UN COLOR
     public static void _rellenar(int X, int Y, int ColOr, int ColNuevo){
-        
+
         if(X < Imagen.getWidth() && X >= 0 && Y >= 0 && Y < Imagen.getHeight()){
             int Col = Imagen.getRGB(X, Y);
 
@@ -160,7 +201,7 @@ public class Main {
 
     public static void main(String[] args) {
         JFrame Vent = Utils.Vent = new JFrame();
-        Vent.setSize(520, 400);
+        Vent.setSize(600, 440);
         Vent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
@@ -179,23 +220,120 @@ public class Main {
 
         Seccion SecFormas = new Seccion("Formas");
         SecFormas.Cont.setLayout(new FlowLayout(FlowLayout.LEFT));
-        SecFormas.Cont.add(new BtSelForma());
-        SecFormas.Cont.add(new BtSelForma());
-        SecFormas.Cont.add(new BtSelForma());
+        SecFormas.Cont.add(new BtSelForma(){
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+
+                System.out.println("Dibujar Rectangulo");
+                Forma = 0;                
+            }
+        });
+        SecFormas.Cont.add(new BtSelForma(){
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+
+                System.out.println("Dibujar Triangulo");
+                Forma = 1;
+            }
+        });
+        SecFormas.Cont.add(new BtSelForma(){
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+
+                System.out.println("Dibujar Pentagono");
+                Forma = 2;
+            }
+        });
         
         Seccion SecColBorde = new Seccion("Color Borde");
-        SecColBorde.Cont.add(new SliderMod(0, 0, 255));
-        SecColBorde.Cont.add(new SliderMod(0, 0, 255));
-        SecColBorde.Cont.add(new SliderMod(0, 0, 255));
+        
+        SlCompBorde SlBordeColR = new SlCompBorde(0, 0, 255);
+        SlCompBorde SlBordeColG = new SlCompBorde(0, 0, 255);
+        SlCompBorde SlBordeColB = new SlCompBorde(0, 0, 255);
+
+        SecColBorde.Cont.add(SlBordeColR);
+        SecColBorde.Cont.add(SlBordeColG);
+        SecColBorde.Cont.add(SlBordeColB);
+
 
         Seccion SecColRelleno = new Seccion("Color Relleno");
-        SecColRelleno.Cont.add(new SliderMod(0, 0, 255));
-        SecColRelleno.Cont.add(new SliderMod(0, 0, 255));
-        SecColRelleno.Cont.add(new SliderMod(0, 0, 255));
+
+        SlCompRelleno SlRellenoColR = new SlCompRelleno(0, 0, 255);
+        SlCompRelleno SlRellenoColG = new SlCompRelleno(0, 0, 255);
+        SlCompRelleno SlRellenoColB = new SlCompRelleno(0, 0, 255);
+
+        SecColRelleno.Cont.add(SlRellenoColR);
+        SecColRelleno.Cont.add(SlRellenoColG);
+        SecColRelleno.Cont.add(SlRellenoColB);
+
+
+        CambioValorList Listener = new CambioValorList(){
+
+            @Override
+            public void CambioValor(SliderMod pnBarra) {
+
+                if(Dibujando){
+                    Utils.DelayBorde = 0;
+                    Utils.DelayRelleno = 0;
+                }
+
+                Vent.repaint();
+
+                Utils.ColBorde = new Color(SlBordeColR.Valor, SlBordeColG.Valor, SlBordeColB.Valor); 
+                Utils.ColRelleno = new Color(SlRellenoColR.Valor, SlRellenoColG.Valor, SlRellenoColB.Valor); 
+            }
+        };
+
+
+        SlBordeColR.AgregarCambioValList(Listener);
+        SlBordeColG.AgregarCambioValList(Listener);
+        SlBordeColB.AgregarCambioValList(Listener);
+
+        SlRellenoColR.AgregarCambioValList(Listener);
+        SlRellenoColG.AgregarCambioValList(Listener);
+        SlRellenoColB.AgregarCambioValList(Listener);
+
+
+        JPanel PnBtDibujar = new JPanel();
+        BotonGenerico BtDibujar = new BotonGenerico(){
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+
+                if(Dibujando)
+                    return;
+
+                _reiniciar_imagen();
+                Utils.DelayBorde = 5;
+                Utils.DelayRelleno = 1;
+
+                switch (Forma) {
+                    case 0:
+                        _dib_rect_statico(30,30, 90, 90);
+                    break;
+
+                    case 1:
+                        _dib_tria_statico(75, 30, 120, 120, 30, 120);
+                    break;
+                        
+                    case 2:
+                        _dib_poligono_statico(75, 75, 50, 7);
+                    break;
+                }
+            }  
+        };
+        BtDibujar.setPreferredSize(new Dimension(100, 30));
+        BtDibujar.setBackground(Color.CYAN);
+
+        PnBtDibujar.add(BtDibujar);
 
         PnOpciones.add(SecFormas);
         PnOpciones.add(SecColBorde);
         PnOpciones.add(SecColRelleno);
+        PnOpciones.add(PnBtDibujar);
 
 
         //CREAR AREA PARA LA IMAGEN
@@ -210,12 +348,10 @@ public class Main {
                 g.drawImage(Imagen, 0, 0, 300, 300, this);
             }
         };
-        PnImagen.setPreferredSize(new Dimension(300, 300));
+        PnImagen.setPreferredSize(new Dimension(350, 300));
         PnImagen.setBackground(Color.green);
-        Utils.DelayBorde = 0;
-        _dib_poligono_statico(75, 75, 50, 4);
-        //_dib_rect_statico(20, 20, 50, 50);
-
+        Utils.DelayBorde = 5;
+        
         //ASIGNAR CONSTRAINTS
         SpringLayout MainSP = new SpringLayout();
         PnPrinc.setLayout(MainSP);
@@ -248,15 +384,5 @@ public class Main {
         Listener Lst = new Listener();
         Vent.addMouseListener(Lst);
         Vent.addMouseMotionListener(Lst);
-
-
-        Thread Dibujar = new Thread(new Runnable(){
-            @Override
-            public void run() {
-                _rellenar(75, 75, Imagen.getRGB(75, 75), Color.WHITE.getRGB());
-            }
-        });
-
-        Dibujar.start();
     }
 }

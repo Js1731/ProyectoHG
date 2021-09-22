@@ -9,6 +9,9 @@ public class Utils {
     public static int DelayBorde = 10;
     public static int DelayRelleno = 1;
 
+    public static Color ColBorde = Color.white;
+    public static Color ColRelleno = Color.BLACK;
+
     public static Color ColNegro = new Color(27,27,27);
 
     public static int clamp(int val, int valmin, int valmax){
