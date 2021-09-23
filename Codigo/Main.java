@@ -201,15 +201,16 @@ public class Main {
 
     public static void main(String[] args) {
         JFrame Vent = Utils.Vent = new JFrame();
-        Vent.setSize(600, 440);
+        Vent.setSize(600, 490);
         Vent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
         JPanel PnPrinc = new JPanel();
-
+        PnPrinc.setBackground(Utils.ColGris);
 
         //CREAR CONTENIDO DE LA VENTANA
         JPanel PnTitulo = new JPanel();
+        PnTitulo.setBackground(Utils.ColGrisOsc);
         PnTitulo.setPreferredSize(new Dimension(PnTitulo.getPreferredSize().width, 80));
 
         //CREAR PANEL PARA LA SECCION DE SELECCION DE FORMAS, COLOR Y RELLENO
@@ -220,7 +221,7 @@ public class Main {
 
         Seccion SecFormas = new Seccion("Formas");
         SecFormas.Cont.setLayout(new FlowLayout(FlowLayout.LEFT));
-        SecFormas.Cont.add(new BtSelForma(){
+        SecFormas.Cont.add(new BtSelForma("Rectangulo"){
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
@@ -229,7 +230,7 @@ public class Main {
                 Forma = 0;                
             }
         });
-        SecFormas.Cont.add(new BtSelForma(){
+        SecFormas.Cont.add(new BtSelForma("Triangulo"){
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
@@ -238,7 +239,7 @@ public class Main {
                 Forma = 1;
             }
         });
-        SecFormas.Cont.add(new BtSelForma(){
+        SecFormas.Cont.add(new BtSelForma("Pentagono"){
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
@@ -298,6 +299,7 @@ public class Main {
 
 
         JPanel PnBtDibujar = new JPanel();
+        PnBtDibujar.setBackground(Utils.ColGris);
         BotonGenerico BtDibujar = new BotonGenerico(){
             @Override
             public void mousePressed(MouseEvent e) {
@@ -308,7 +310,7 @@ public class Main {
 
                 _reiniciar_imagen();
                 Utils.DelayBorde = 5;
-                Utils.DelayRelleno = 1;
+                Utils.DelayRelleno = 0;
 
                 switch (Forma) {
                     case 0:
@@ -349,7 +351,7 @@ public class Main {
             }
         };
         PnImagen.setPreferredSize(new Dimension(350, 300));
-        PnImagen.setBackground(Color.green);
+        PnImagen.setBackground(Utils.ColGrisClaro);
         Utils.DelayBorde = 5;
         
         //ASIGNAR CONSTRAINTS
@@ -367,8 +369,8 @@ public class Main {
         MainSP.putConstraint(SpringLayout.SOUTH, PnImagen, 0, SpringLayout.SOUTH, PnPrinc);
 
         //SECCION FORMAS
-        MainSP.putConstraint(SpringLayout.EAST, PnOpciones, 0, SpringLayout.WEST, PnImagen);
-        MainSP.putConstraint(SpringLayout.WEST, PnOpciones, 0, SpringLayout.WEST, PnPrinc);
+        MainSP.putConstraint(SpringLayout.EAST, PnOpciones, -10, SpringLayout.WEST, PnImagen);
+        MainSP.putConstraint(SpringLayout.WEST, PnOpciones, 10, SpringLayout.WEST, PnPrinc);
         MainSP.putConstraint(SpringLayout.NORTH, PnOpciones, 0, SpringLayout.SOUTH, PnTitulo);
         MainSP.putConstraint(SpringLayout.SOUTH, PnOpciones, 0, SpringLayout.SOUTH, PnPrinc);
 
