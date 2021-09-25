@@ -1,5 +1,6 @@
 package Codigo;
 import java.awt.Color;
+import java.awt.Font;
 
 import javax.swing.JFrame;
 
@@ -8,6 +9,9 @@ public class Utils {
     public static JFrame Vent = null;
     public static int DelayBorde = 10;
     public static int DelayRelleno = 1;
+
+    public static Font FnTitulo = new Font("san-serif", Font.BOLD, 25);
+    public static Font FnNormal = new Font("san-serif", Font.PLAIN, 16);
 
     public static Color ColBorde = Color.white;
     public static Color ColRelleno = Color.BLACK;

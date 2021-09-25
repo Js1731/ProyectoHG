@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 import javax.swing.event.MouseInputListener;
@@ -99,7 +100,12 @@ public class Main {
                 _dibujar_linea(x + ancho, y + alto, x, y + alto);
                 _dibujar_linea(x, y + alto, x, y);
                 
+                try {
                 _rellenar(75, 75, Imagen.getRGB(75, 75), Utils.ColRelleno.getRGB());
+            } catch (Exception e) {
+                System.out.println(e.getStackTrace()[0].toString().substring(0, 20));
+            }
+
 
                 Dibujando = false;
             }
@@ -179,21 +185,14 @@ public class Main {
             int Col = Imagen.getRGB(X, Y);
 
             if(Col == ColOr){
-                try {
-                    Thread.sleep(Utils.DelayRelleno);
-                    
-                    Imagen.setRGB(X, Y, ColNuevo);
-                    Utils.Vent.repaint();
 
-                    _rellenar( X + 1, Y, ColOr, ColNuevo);
-                    _rellenar( X - 1, Y, ColOr, ColNuevo);
-                    _rellenar( X, Y + 1, ColOr, ColNuevo);
-                    _rellenar(X, Y - 1, ColOr, ColNuevo);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                
+                        Imagen.setRGB(X, Y, ColNuevo);
+                        Utils.Vent.repaint();
+    
+                        _rellenar( X + 1, Y, ColOr, ColNuevo);
+                        _rellenar( X - 1, Y, ColOr, ColNuevo);
+                        _rellenar( X, Y + 1, ColOr, ColNuevo);
+                        _rellenar(X, Y - 1, ColOr, ColNuevo);
 
             }
         }
@@ -201,7 +200,7 @@ public class Main {
 
     public static void main(String[] args) {
         JFrame Vent = Utils.Vent = new JFrame();
-        Vent.setSize(600, 490);
+        Vent.setSize(650, 500);
         Vent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
@@ -209,9 +208,51 @@ public class Main {
         PnPrinc.setBackground(Utils.ColGris);
 
         //CREAR CONTENIDO DE LA VENTANA
-        JPanel PnTitulo = new JPanel();
+        JPanel PnTitulo = new JPanel(){
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                g.setColor(Utils.ColGrisClaro);
+                g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
+            }
+        };
         PnTitulo.setBackground(Utils.ColGrisOsc);
         PnTitulo.setPreferredSize(new Dimension(PnTitulo.getPreferredSize().width, 80));
+
+
+        JLabel LbTitulo = new JLabel("Proyecto 1");
+        LbTitulo.setForeground(Color.WHITE);
+        LbTitulo.setFont(Utils.FnTitulo);
+        JLabel LbSubTitulo = new JLabel("Herramientas de Computacion Grafica");
+        LbSubTitulo.setFont(Utils.FnNormal);
+        LbSubTitulo.setForeground(Utils.ColGrisClaro);
+        JLabel LbNombre1 = new JLabel("Joshua Lopez 8-970-791");
+        LbNombre1.setForeground(Color.WHITE);
+        LbNombre1.setFont(Utils.FnNormal);
+        JLabel LbNombre2 = new JLabel("Jair Labrador 9-923-233");
+        LbNombre2.setForeground(Color.WHITE);
+        LbNombre2.setFont(Utils.FnNormal);
+
+        SpringLayout SpTitulo = new SpringLayout();
+        PnTitulo.setLayout(SpTitulo);
+
+        SpTitulo.putConstraint(SpringLayout.WEST, LbTitulo, 20, SpringLayout.WEST, PnTitulo);
+        SpTitulo.putConstraint(SpringLayout.NORTH, LbTitulo, 15, SpringLayout.NORTH, PnTitulo);
+
+        SpTitulo.putConstraint(SpringLayout.WEST, LbSubTitulo, 20, SpringLayout.WEST, PnTitulo);
+        SpTitulo.putConstraint(SpringLayout.NORTH, LbSubTitulo, 0, SpringLayout.SOUTH, LbTitulo);
+
+        SpTitulo.putConstraint(SpringLayout.EAST, LbNombre1, -20, SpringLayout.EAST, PnTitulo);
+        SpTitulo.putConstraint(SpringLayout.NORTH, LbNombre1, 20, SpringLayout.NORTH, PnTitulo);
+
+        SpTitulo.putConstraint(SpringLayout.EAST, LbNombre2, -20, SpringLayout.EAST, PnTitulo);
+        SpTitulo.putConstraint(SpringLayout.NORTH, LbNombre2, 0, SpringLayout.SOUTH, LbNombre1);
+
+        PnTitulo.add(LbTitulo);
+        PnTitulo.add(LbSubTitulo);
+        PnTitulo.add(LbNombre1);
+        PnTitulo.add(LbNombre2);
 
         //CREAR PANEL PARA LA SECCION DE SELECCION DE FORMAS, COLOR Y RELLENO
         JPanel PnOpciones = new JPanel();
@@ -221,39 +262,42 @@ public class Main {
 
         Seccion SecFormas = new Seccion("Formas");
         SecFormas.Cont.setLayout(new FlowLayout(FlowLayout.LEFT));
-        SecFormas.Cont.add(new BtSelForma("Rectangulo"){
+        SecFormas.Cont.add(new BtSelForma("Rectangulo", 0){
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
 
                 System.out.println("Dibujar Rectangulo");
-                Forma = 0;                
+                Forma = 0;      
+                Vent.repaint();          
             }
         });
-        SecFormas.Cont.add(new BtSelForma("Triangulo"){
+        SecFormas.Cont.add(new BtSelForma("Triangulo", 1){
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
 
                 System.out.println("Dibujar Triangulo");
                 Forma = 1;
+                Vent.repaint();
             }
         });
-        SecFormas.Cont.add(new BtSelForma("Pentagono"){
+        SecFormas.Cont.add(new BtSelForma("Pentagono", 2){
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
 
                 System.out.println("Dibujar Pentagono");
                 Forma = 2;
+                Vent.repaint();
             }
         });
         
         Seccion SecColBorde = new Seccion("Color Borde");
         
-        SlCompBorde SlBordeColR = new SlCompBorde(0, 0, 255);
-        SlCompBorde SlBordeColG = new SlCompBorde(0, 0, 255);
-        SlCompBorde SlBordeColB = new SlCompBorde(0, 0, 255);
+        SlCompBorde SlBordeColR = new SlCompBorde(255, 0, 255);
+        SlCompBorde SlBordeColG = new SlCompBorde(255, 0, 255);
+        SlCompBorde SlBordeColB = new SlCompBorde(255, 0, 255);
 
         SecColBorde.Cont.add(SlBordeColR);
         SecColBorde.Cont.add(SlBordeColG);
@@ -326,6 +370,27 @@ public class Main {
                     break;
                 }
             }  
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                setOpaque(false);
+
+                if(!Dibujando){
+                    if(MouseEncima)
+                        g.setColor(Color.lightGray);
+                    else
+                        g.setColor(Utils.ColGrisClaro);
+
+                }else
+                    g.setColor(Utils.ColGrisOsc);
+
+                g.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                g.setColor(Color.WHITE);
+                g.drawString("Dibujar", 30, 18);
+
+            }
         };
         BtDibujar.setPreferredSize(new Dimension(100, 30));
         BtDibujar.setBackground(Color.CYAN);
@@ -347,10 +412,10 @@ public class Main {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
 
-                g.drawImage(Imagen, 0, 0, 300, 300, this);
+                g.drawImage(Imagen, 0, 0, getWidth(), getHeight(), this);
             }
         };
-        PnImagen.setPreferredSize(new Dimension(350, 300));
+        PnImagen.setPreferredSize(new Dimension(400, 300));
         PnImagen.setBackground(Utils.ColGrisClaro);
         Utils.DelayBorde = 5;
         
@@ -369,8 +434,8 @@ public class Main {
         MainSP.putConstraint(SpringLayout.SOUTH, PnImagen, 0, SpringLayout.SOUTH, PnPrinc);
 
         //SECCION FORMAS
-        MainSP.putConstraint(SpringLayout.EAST, PnOpciones, -10, SpringLayout.WEST, PnImagen);
-        MainSP.putConstraint(SpringLayout.WEST, PnOpciones, 10, SpringLayout.WEST, PnPrinc);
+        MainSP.putConstraint(SpringLayout.EAST, PnOpciones, -20, SpringLayout.WEST, PnImagen);
+        MainSP.putConstraint(SpringLayout.WEST, PnOpciones, 20, SpringLayout.WEST, PnPrinc);
         MainSP.putConstraint(SpringLayout.NORTH, PnOpciones, 0, SpringLayout.SOUTH, PnTitulo);
         MainSP.putConstraint(SpringLayout.SOUTH, PnOpciones, 0, SpringLayout.SOUTH, PnPrinc);
 

@@ -20,6 +20,7 @@ public class Seccion extends JPanel{
         Cont.setOpaque(false);
 
         JLabel LbTitulo = new JLabel(titulo);
+        LbTitulo.setFont(Utils.FnNormal);
         LbTitulo.setForeground(Color.white);
         LbTitulo.setPreferredSize(new Dimension(30,40));
 
