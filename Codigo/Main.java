@@ -93,7 +93,7 @@ public class Main {
         LbNombre1.setForeground(Color.WHITE);
         LbNombre1.setFont(Utils.FnNormal);
 
-        JLabel LbNombre2 = new JLabel("Jair Labrador 9-923-233");
+        JLabel LbNombre2 = new JLabel("Jair Labrador 8-968-119");
         LbNombre2.setForeground(Color.WHITE);
         LbNombre2.setFont(Utils.FnNormal);
 

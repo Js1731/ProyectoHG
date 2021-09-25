@@ -75,31 +75,6 @@ public class Dibujo {
         Dibujar.start();
     }
 
-    public static void _dib_tria(int x1, int y1, int x2, int y2, int x3, int y3, BufferedImage Imagen){
-
-        if(Main.Dibujando)
-            return;
-
-        Thread Dibujar = new Thread(new Runnable(){
-            @Override
-            public void run() {
-                Graphics Lapiz = Imagen.getGraphics();
-                _reiniciar_imagen(Imagen);
-                Main.Dibujando = true;
-
-                Lapiz.setColor(Utils.ColBorde);
-                _dibujar_linea(x1, y1, x2, y2, Imagen);
-                _dibujar_linea(x2, y2, x3, y3, Imagen);
-                _dibujar_linea(x3, y3, x1, y1, Imagen);
-
-                _rellenar(30, 30, Imagen.getRGB(30, 30), Utils.ColRelleno.getRGB(), Imagen);
-
-                Main.Dibujando = false;
-            }
-        });
-
-        Dibujar.start();
-    }
 
     public static void _dib_poligono(int x, int y, int radio, int lados, BufferedImage Imagen){
 
