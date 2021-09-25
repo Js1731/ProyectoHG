@@ -2,8 +2,8 @@ package Codigo;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.MouseEvent;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 import javax.swing.JLabel;
 
@@ -27,6 +27,14 @@ public class BtSelForma extends BotonGenerico{
     }
 
     @Override
+    public void mousePressed(MouseEvent e) {
+        super.mousePressed(e);
+
+        Main.FormaAct = Forma;      
+        Utils.Vent.repaint();          
+    }
+
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -35,7 +43,7 @@ public class BtSelForma extends BotonGenerico{
             g.drawRect(0, 0, getWidth()-1, getHeight()-1);
         }
 
-        if(Main.Forma == Forma){
+        if(Main.FormaAct == Forma){
             g.setColor(Utils.ColGris);
             g.fillRect(0, 0, getWidth()-1, getHeight()-1);
         }

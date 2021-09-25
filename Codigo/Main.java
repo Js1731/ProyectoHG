@@ -4,6 +4,9 @@ package Codigo;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
 
@@ -42,165 +45,22 @@ class Listener implements MouseInputListener {
 public class Main {
 
     public static Thread ProcDibujar;
-    public static int Forma = 0;
+    public static int FormaAct = 0;
     public static boolean Dibujando = false;
+
     public static JPanel PnImagen;
+    public static BufferedImage Imagen = new BufferedImage(60,60,BufferedImage.TYPE_INT_ARGB);
     public static Graphics Lapiz;
-    public static BufferedImage Imagen = new BufferedImage(150,150,BufferedImage.TYPE_INT_ARGB);
 
-    public static void  _dibujar_pixel(int x, int y){
-        
-        try {
-            Lapiz.drawLine(x, y, x, y);
-            Thread.sleep(Utils.DelayBorde);
-            Utils.Vent.repaint();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void _reiniciar_imagen(){
-        Lapiz.setColor(Color.gray);
-        Lapiz.fillRect(0, 0, Imagen.getWidth(), Imagen.getHeight());
-    }
-
-    public static void _dibujar_linea(int x1, int y1, int x2, int y2){
-        double px = x1;
-        double py = y1;
-
-        int largo = Math.abs(Math.abs(x2 - x1) > Math.abs(y2 - y1) ?  (x2 - x1) : (y2 - y1));
-
-        float dx = (float)(x2 - x1)/(largo);
-        float dy = (float)(y2 - y1)/(largo);
-        
-        for (int i = 0; i < largo; i++) {
-            px += dx;
-            py += dy;
-
-            _dibujar_pixel(Math.round((float)px), Math.round((float)py));
-        }
-    }
-
-    public static void _dib_rect_statico(int x, int y, int ancho, int alto){
-
-        if(Dibujando)
-            return;
-
-        Thread Dibujar = ProcDibujar = new Thread(new Runnable(){
-            @Override
-            public void run() {
-
-                _reiniciar_imagen();
-                Dibujando = true;
-
-                Lapiz.setColor(Utils.ColBorde);
-                
-                _dibujar_linea(x, y, x + ancho, y);
-                _dibujar_linea(x + ancho, y, x + ancho, y + alto);
-                _dibujar_linea(x + ancho, y + alto, x, y + alto);
-                _dibujar_linea(x, y + alto, x, y);
-                
-                try {
-                _rellenar(75, 75, Imagen.getRGB(75, 75), Utils.ColRelleno.getRGB());
-            } catch (Exception e) {
-                System.out.println(e.getStackTrace()[0].toString().substring(0, 20));
-            }
-
-
-                Dibujando = false;
-            }
-        });
-
-        Dibujar.start();
-    }
-
-    public static void _dib_tria_statico(int x1, int y1, int x2, int y2, int x3, int y3){
-
-        if(Dibujando)
-            return;
-
-        Thread Dibujar = ProcDibujar = new Thread(new Runnable(){
-            @Override
-            public void run() {
-                _reiniciar_imagen();
-                Dibujando = true;
-
-                Lapiz.setColor(Utils.ColBorde);
-                _dibujar_linea(x1, y1, x2, y2);
-                _dibujar_linea(x2, y2, x3, y3);
-                _dibujar_linea(x3, y3, x1, y1);
-
-                _rellenar(75, 75, Imagen.getRGB(75, 75), Utils.ColRelleno.getRGB());
-
-                Dibujando = false;
-            }
-        });
-
-        Dibujar.start();
-    }
-
-    public static void _dib_poligono_statico(int x, int y, int radio, int lados){
-
-        if(Dibujando)
-            return;
-
-        Thread Dibujar = ProcDibujar = new Thread(new Runnable(){
-            @Override
-            public void run() {
-
-                _reiniciar_imagen();
-
-                Dibujando = true;
-
-                double paso = 2*Math.PI/lados;
-
-                //PUNTO INICIAL
-                double px_ini = x + radio;
-                double py_ini = y;
-
-                for (double i = paso; i <= 2*Math.PI; i+=paso) {
-                    double px = x + radio * Math.cos(i);
-                    double py = y + radio * Math.sin(i);
-
-                    Lapiz.setColor(Utils.ColBorde);
-                    _dibujar_linea(Math.round((float)px_ini), Math.round((float)py_ini), Math.round((float)px), Math.round((float)py));
-                    
-                    //ACTUALIZAR PUNTO INICIAL
-                    px_ini = px;
-                    py_ini = py;
-                }
-                
-                _rellenar(75, 75, Imagen.getRGB(75, 75), Utils.ColRelleno.getRGB());
-                Dibujando = false;
-            }
-        });
-
-        Dibujar.start();
-    }
-
-    //RELLENAR UN ESPACIO CON UN COLOR
-    public static void _rellenar(int X, int Y, int ColOr, int ColNuevo){
-
-        if(X < Imagen.getWidth() && X >= 0 && Y >= 0 && Y < Imagen.getHeight()){
-            int Col = Imagen.getRGB(X, Y);
-
-            if(Col == ColOr){
-
-                        Imagen.setRGB(X, Y, ColNuevo);
-                        Utils.Vent.repaint();
-    
-                        _rellenar( X + 1, Y, ColOr, ColNuevo);
-                        _rellenar( X - 1, Y, ColOr, ColNuevo);
-                        _rellenar( X, Y + 1, ColOr, ColNuevo);
-                        _rellenar(X, Y - 1, ColOr, ColNuevo);
-
-            }
-        }
-    }
+   
 
     public static void main(String[] args) {
         JFrame Vent = Utils.Vent = new JFrame();
-        Vent.setSize(650, 500);
+        Vent.setSize(650, 550);
+
+        Dimension Pantalla = Toolkit.getDefaultToolkit().getScreenSize();
+
+        Vent.setLocation(Pantalla.width/2 - 650/2, Pantalla.height/2 - 550/2);
         Vent.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
@@ -224,15 +84,50 @@ public class Main {
         JLabel LbTitulo = new JLabel("Proyecto 1");
         LbTitulo.setForeground(Color.WHITE);
         LbTitulo.setFont(Utils.FnTitulo);
+
         JLabel LbSubTitulo = new JLabel("Herramientas de Computacion Grafica");
         LbSubTitulo.setFont(Utils.FnNormal);
         LbSubTitulo.setForeground(Utils.ColGrisClaro);
+
         JLabel LbNombre1 = new JLabel("Joshua Lopez 8-970-791");
         LbNombre1.setForeground(Color.WHITE);
         LbNombre1.setFont(Utils.FnNormal);
+
         JLabel LbNombre2 = new JLabel("Jair Labrador 9-923-233");
         LbNombre2.setForeground(Color.WHITE);
         LbNombre2.setFont(Utils.FnNormal);
+
+        BotonGenerico BtCerrar = new BotonGenerico(){
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+
+                Vent.dispose();
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                Graphics2D g2 = (Graphics2D)g;
+
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                if(MouseEncima){
+                    g2.setColor(Utils.ColGris);
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
+                }
+
+
+                g2.setColor(Color.WHITE);
+                g2.drawLine(10, 10, 30, 30);
+                g2.drawLine(30, 10, 10, 30);
+            }
+        };
+
+        BtCerrar.setPreferredSize(new Dimension(40, 40));
+        BtCerrar.setOpaque(false);
 
         SpringLayout SpTitulo = new SpringLayout();
         PnTitulo.setLayout(SpTitulo);
@@ -243,16 +138,20 @@ public class Main {
         SpTitulo.putConstraint(SpringLayout.WEST, LbSubTitulo, 20, SpringLayout.WEST, PnTitulo);
         SpTitulo.putConstraint(SpringLayout.NORTH, LbSubTitulo, 0, SpringLayout.SOUTH, LbTitulo);
 
-        SpTitulo.putConstraint(SpringLayout.EAST, LbNombre1, -20, SpringLayout.EAST, PnTitulo);
+        SpTitulo.putConstraint(SpringLayout.EAST, BtCerrar, -20, SpringLayout.EAST, PnTitulo);
+        SpTitulo.putConstraint(SpringLayout.NORTH, BtCerrar, 5, SpringLayout.NORTH, LbTitulo);
+
+        SpTitulo.putConstraint(SpringLayout.EAST, LbNombre1, -20, SpringLayout.WEST, BtCerrar);
         SpTitulo.putConstraint(SpringLayout.NORTH, LbNombre1, 20, SpringLayout.NORTH, PnTitulo);
 
-        SpTitulo.putConstraint(SpringLayout.EAST, LbNombre2, -20, SpringLayout.EAST, PnTitulo);
+        SpTitulo.putConstraint(SpringLayout.EAST, LbNombre2, -20, SpringLayout.WEST, BtCerrar);
         SpTitulo.putConstraint(SpringLayout.NORTH, LbNombre2, 0, SpringLayout.SOUTH, LbNombre1);
 
         PnTitulo.add(LbTitulo);
         PnTitulo.add(LbSubTitulo);
         PnTitulo.add(LbNombre1);
         PnTitulo.add(LbNombre2);
+        PnTitulo.add(BtCerrar);
 
         //CREAR PANEL PARA LA SECCION DE SELECCION DE FORMAS, COLOR Y RELLENO
         JPanel PnOpciones = new JPanel();
@@ -262,36 +161,11 @@ public class Main {
 
         Seccion SecFormas = new Seccion("Formas");
         SecFormas.Cont.setLayout(new FlowLayout(FlowLayout.LEFT));
-        SecFormas.Cont.add(new BtSelForma("Rectangulo", 0){
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-
-                System.out.println("Dibujar Rectangulo");
-                Forma = 0;      
-                Vent.repaint();          
-            }
-        });
-        SecFormas.Cont.add(new BtSelForma("Triangulo", 1){
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-
-                System.out.println("Dibujar Triangulo");
-                Forma = 1;
-                Vent.repaint();
-            }
-        });
-        SecFormas.Cont.add(new BtSelForma("Pentagono", 2){
-            @Override
-            public void mousePressed(MouseEvent e) {
-                super.mousePressed(e);
-
-                System.out.println("Dibujar Pentagono");
-                Forma = 2;
-                Vent.repaint();
-            }
-        });
+        SecFormas.Cont.add(new BtSelForma("Rectangulo", 0));
+        SecFormas.Cont.add(new BtSelForma("Triangulo", 1));
+        SecFormas.Cont.add(new BtSelForma("Rombo", 2));
+        SecFormas.Cont.add(new BtSelForma("Pentagono", 3));
+        SecFormas.Cont.add(new BtSelForma("Heptagono", 4));
         
         Seccion SecColBorde = new Seccion("Color Borde");
         
@@ -321,8 +195,8 @@ public class Main {
             public void CambioValor(SliderMod pnBarra) {
 
                 if(Dibujando){
-                    Utils.DelayBorde = 0;
-                    Utils.DelayRelleno = 0;
+                    Dibujo.DelayBorde = 0;
+                    Dibujo.DelayRelleno = 0;
                 }
 
                 Vent.repaint();
@@ -349,24 +223,38 @@ public class Main {
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
 
-                if(Dibujando)
+                
+
+                if(Dibujando){
+                    Dibujo.DelayBorde = 0;
+                    Dibujo.DelayRelleno = 0;
+                    
                     return;
+                }
 
-                _reiniciar_imagen();
-                Utils.DelayBorde = 5;
-                Utils.DelayRelleno = 0;
+                Dibujo._reiniciar_imagen(Imagen);
+                Dibujo.DelayBorde = 5;
+                Dibujo.DelayRelleno = 2;
 
-                switch (Forma) {
+                switch (FormaAct) {
                     case 0:
-                        _dib_rect_statico(30,30, 90, 90);
+                        Dibujo._dib_rect(10,10, 40, 40, Imagen);
                     break;
 
                     case 1:
-                        _dib_tria_statico(75, 30, 120, 120, 30, 120);
+                        Dibujo._dib_poligono(30, 30, 20, 3, Imagen);
                     break;
                         
                     case 2:
-                        _dib_poligono_statico(75, 75, 50, 7);
+                        Dibujo._dib_poligono(30, 30, 20, 4, Imagen);
+                    break;
+
+                    case 3:
+                        Dibujo._dib_poligono(30, 30, 20, 5, Imagen);
+                    break;
+
+                    case 4:
+                        Dibujo._dib_poligono(30, 30, 20, 6, Imagen);
                     break;
                 }
             }  
@@ -417,7 +305,7 @@ public class Main {
         };
         PnImagen.setPreferredSize(new Dimension(400, 300));
         PnImagen.setBackground(Utils.ColGrisClaro);
-        Utils.DelayBorde = 5;
+        Dibujo.DelayBorde = 5;
         
         //ASIGNAR CONSTRAINTS
         SpringLayout MainSP = new SpringLayout();
